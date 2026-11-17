@@ -1,0 +1,50 @@
+export default function AboutPage() {
+  return (
+    <div className="space-y-6 text-gray-700 leading-relaxed text-sm md:text-base">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-300 pb-4">About Us</h1>
+      
+      <p className="font-semibold text-lg text-gray-900">Welcome to Realstack!</p>
+      
+      <p>
+        Realstack is a transparent real-estate platform that makes it possible to buy, sell, or rent a house without paying any brokerage.
+      </p>
+
+      <p>
+        Realstack was started because we believed that paying hefty brokerage cannot be the only option to find a new home. As tenants and buyers, we have been paying these commissions year on year without seeing any advantage. The only reason the middleman existed was that there was a huge information asymmetry in the market. Realstack is a platform that removes this information asymmetry and provides a marketplace for the free exchange of information that used to cost 1-2% of the property value as brokerage.
+      </p>
+
+      <p>We have done 3 things to help you find that perfect home:</p>
+      <ul className="list-disc pl-6 space-y-3">
+        <li><strong>Firstly,</strong> we have painstakingly verified each listing and made sure that these are direct owners and there are no middlemen or brokers. We ensure that you get a totally broker-free list.</li>
+        <li><strong>Secondly,</strong> we have ensured that maximum information is available to you in an easy-to-use format. This ensures that you get a very good idea of the property even before you visit it. Thus, you can shortlist flats sitting at the comfort of your home without actually traveling to all the good and bad properties.</li>
+        <li><strong>Thirdly,</strong> our AI-powered price insights help you negotiate better. We provide transparent neighborhood data so you know exactly what you are paying for.</li>
+      </ul>
+
+      <p>
+        If you are a landlord or property owner interested in posting your apartments to Realstack, please click on the <strong>"List Property"</strong> button in the top menu and we will help you list the property for free.
+      </p>
+      
+      <p>
+        And tenants/buyers, happy hunting and get in touch with us to let us know how else we can help!
+      </p>
+    </div>
+  );
+}
+      {/* COMING SOON ROADMAP */}
+      <div className="mt-12 pt-8 border-t border-gray-200">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Coming Soon to Realstack</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+            <h3 className="font-bold text-blue-900">AI Commute Calculator</h3>
+            <p className="text-sm text-gray-500 mt-2">See exact travel times to your office.</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+            <h3 className="font-bold text-blue-900">Neighborhood Score</h3>
+            <p className="text-sm text-gray-500 mt-2">Safety, lifestyle, and connectivity ratings.</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+            <h3 className="font-bold text-blue-900">Negotiation Assistant</h3>
+            <p className="text-sm text-gray-500 mt-2">AI-driven pricing tips to help you bargain.</p>
+          </div>
+        </div>
+      </div>

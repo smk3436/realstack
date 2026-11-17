@@ -1,0 +1,44 @@
+export default function FAQPage() {
+  return (
+    <div className="space-y-6 text-gray-700 leading-relaxed text-sm md:text-base">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6 border-b border-gray-300 pb-4">
+        Frequently Asked Questions
+      </h1>
+
+      <div className="space-y-4">
+        {/* FAQ Item */}
+        <details className="bg-gray-50 border border-gray-200 rounded-lg group">
+          <summary className="font-semibold p-4 cursor-pointer list-none flex justify-between items-center">
+            Why do I need a verified account to use Realstack services?
+            <span className="text-gray-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div className="p-4 pt-0 border-t border-gray-200 text-gray-600">
+            At Realstack, our main aim is to eliminate brokers from the whole real estate scene. In order to achieve that, we verify each owner/tenant's account and activate it after verifying that the user is genuine.
+          </div>
+        </details>
+
+        {/* FAQ Item */}
+        <details className="bg-gray-50 border border-gray-200 rounded-lg group">
+          <summary className="font-semibold p-4 cursor-pointer list-none flex justify-between items-center">
+            How long does it take for mobile number verification?
+            <span className="text-gray-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div className="p-4 pt-0 border-t border-gray-200 text-gray-600">
+            Our CSR's work tirelessly to verify your account asap. Generally, a mobile number verification happens in less than 4 hours.
+          </div>
+        </details>
+
+        {/* FAQ Item */}
+        <details className="bg-gray-50 border border-gray-200 rounded-lg group">
+          <summary className="font-semibold p-4 cursor-pointer list-none flex justify-between items-center">
+            Is it safe to use login via Facebook & Google?
+            <span className="text-gray-400 group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div className="p-4 pt-0 border-t border-gray-200 text-gray-600">
+            At Realstack, customer satisfaction is our main aim and we don't post anything on your social network for cheap publicity. We don't ask for any extra information when you log in with your social account.
+          </div>
+        </details>
+      </div>
+    </div>
+  );
+}
