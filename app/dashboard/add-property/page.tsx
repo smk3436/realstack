@@ -4,12 +4,21 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabaseClient";
 
+// Change @/lib/... to ../../../lib/...
+import { computeVastu, Direction } from "../../../lib/vastu-calculator";
+
+const DIRECTIONS = [
+  "North", "Northeast", "East", "Southeast",
+  "South", "Southwest", "West", "Northwest",
+];
+
 export default function AddProperty() {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
+  // ⬇️ ADDED VASTU FIELDS TO STATE
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -21,6 +30,12 @@ export default function AddProperty() {
     area_sqft: "",
     owner_name: "",
     owner_phone: "",
+    vastu_facing: "",
+    vastu_entrance: "",
+    vastu_hall: "",
+    vastu_masterBedroom: "",
+    vastu_kitchen: "",
+    vastu_toilet: "",
   });
 
   const [images, setImages] = useState<File[]>([]);
@@ -65,6 +80,7 @@ export default function AddProperty() {
     try {
       const uploadedImageUrls: string[] = [];
 
+      // 1. Upload Images
       for (const file of images) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -84,6 +100,20 @@ export default function AddProperty() {
         uploadedImageUrls.push(urlData.publicUrl);
       }
 
+      // 2. Compute Vastu Data (Only if all fields are filled)
+      const vastuInput = {
+        facing: formData.vastu_facing as Direction,
+        entrance: formData.vastu_entrance as Direction,
+        hall: formData.vastu_hall as Direction,
+        masterBedroom: formData.vastu_masterBedroom as Direction,
+        kitchen: formData.vastu_kitchen as Direction,
+        toilet: formData.vastu_toilet as Direction,
+      };
+
+      const isVastuFilled = Object.values(vastuInput).every((val) => Boolean(val));
+      const vastuData = isVastuFilled ? computeVastu(vastuInput) : {};
+
+      // 3. Save to Database
       const { error: dbError } = await supabase.from("properties").insert([
         {
           title: formData.title,
@@ -100,6 +130,7 @@ export default function AddProperty() {
           is_verified: false, 
           status: "active",
           owner_id: userId,
+          ...vastuData, // ⬅️ Spread the computed Vastu fields into the insert payload
         },
       ]);
 
@@ -196,6 +227,60 @@ export default function AddProperty() {
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea required name="description" onChange={handleChange} rows={4} placeholder="Describe the property, amenities, etc." className="w-full p-2 border rounded-md outline-none focus:ring-2 focus:ring-blue-500 text-black dark:bg-gray-700 dark:text-white dark:border-gray-600"></textarea>
             </div>
+
+            {/* ⬇️ NEW: VASTU DETAILS SECTION ⬇️ */}
+            <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-md border border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-1">Vastu Details</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Select the direction for each room. The Vastu score will be calculated automatically.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Facing Direction</label>
+                  <select name="vastu_facing" onChange={handleChange} className="w-full p-2 border rounded-md outline-none focus:ring-2 focus:ring-blue-500 text-black dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                    <option value="">Select...</option>
+                    {DIRECTIONS.map((dir) => <option key={dir} value={dir}>{dir}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Main Entrance</label>
+                  <select name="vastu_entrance" onChange={handleChange} className="w-full p-2 border rounded-md outline-none focus:ring-2 focus:ring-blue-500 text-black dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                    <option value="">Select...</option>
+                    {DIRECTIONS.map((dir) => <option key={dir} value={dir}>{dir}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Hall / Living Room</label>
+                  <select name="vastu_hall" onChange={handleChange} className="w-full p-2 border rounded-md outline-none focus:ring-2 focus:ring-blue-500 text-black dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                    <option value="">Select...</option>
+                    {DIRECTIONS.map((dir) => <option key={dir} value={dir}>{dir}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Master Bedroom</label>
+                  <select name="vastu_masterBedroom" onChange={handleChange} className="w-full p-2 border rounded-md outline-none focus:ring-2 focus:ring-blue-500 text-black dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                    <option value="">Select...</option>
+                    {DIRECTIONS.map((dir) => <option key={dir} value={dir}>{dir}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Kitchen</label>
+                  <select name="vastu_kitchen" onChange={handleChange} className="w-full p-2 border rounded-md outline-none focus:ring-2 focus:ring-blue-500 text-black dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                    <option value="">Select...</option>
+                    {DIRECTIONS.map((dir) => <option key={dir} value={dir}>{dir}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Toilet</label>
+                  <select name="vastu_toilet" onChange={handleChange} className="w-full p-2 border rounded-md outline-none focus:ring-2 focus:ring-blue-500 text-black dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                    <option value="">Select...</option>
+                    {DIRECTIONS.map((dir) => <option key={dir} value={dir}>{dir}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+            {/* ⬆️ END OF VASTU SECTION ⬆️ */}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>

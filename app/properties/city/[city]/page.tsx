@@ -2,6 +2,8 @@ import { supabase } from "../../../../lib/supabaseClient";
 import PropertyCard from "../../../components/PropertyCard";
 import { notFound } from "next/navigation";
 
+export const instant = false;
+
 // 1. Define the Metadata function for SEO (Google Search Results)
 export async function generateMetadata({ params }: { params: Promise<{ city: string }> }) {
   // FIX: Await the params promise

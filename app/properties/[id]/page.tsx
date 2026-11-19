@@ -1,22 +1,23 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { supabase } from "../../../lib/supabaseClient";
 import { useParams } from "next/navigation";
 import PropertyMap from "../../components/PropertyMap";
+import VastuCard from "../../components/VastuCard";
 
-export default function PropertyDetail() {
+function PropertyDetailContent() {
   const { id } = useParams();
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [slideDirection, setSlideDirection] = useState("");
-  
+
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("I am interested in this property.");
   const [submitted, setSubmitted] = useState(false);
-  
+
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [inquiries, setInquiries] = useState<any[]>([]);
 
@@ -26,7 +27,7 @@ export default function PropertyDetail() {
       setCurrentUser(userData.user);
 
       const { data: propertyData } = await supabase.from("properties").select("*").eq("id", id).single();
-      
+
       if (propertyData) {
         setProperty(propertyData);
         if (propertyData.image_urls && propertyData.image_urls.length > 0) {
@@ -39,7 +40,7 @@ export default function PropertyDetail() {
             .select("*")
             .eq("property_id", id)
             .order("created_at", { ascending: false });
-            
+
           if (inquiryData) setInquiries(inquiryData);
           if (error) console.error("Error fetching inquiries:", error);
         }
@@ -63,7 +64,7 @@ export default function PropertyDetail() {
     const { error } = await supabase.from("inquiries").insert([
       { property_id: id, buyer_name: name, buyer_phone: phone, buyer_email: email, message },
     ]);
-    
+
     if (!error) {
       setSubmitted(true);
     } else {
@@ -73,7 +74,7 @@ export default function PropertyDetail() {
 
   const handleSaveProperty = async () => {
     if (!currentUser) return alert("Please log in to save properties.");
-    
+
     const { error } = await supabase.from("saved_properties").insert([
       { user_id: currentUser.id, property_id: id }
     ]);
@@ -123,7 +124,7 @@ export default function PropertyDetail() {
             <div key={activeImage} className={`bg-gray-200 dark:bg-gray-800 h-96 rounded-lg overflow-hidden shadow-sm ${slideDirection}`}>
               <img src={activeImage || "https://via.placeholder.com/800x600?text=No+Image"} alt="Property Main" className="w-full h-full object-cover" />
             </div>
-            
+
             {property.image_urls && property.image_urls.length > 1 && (
               <div className="grid grid-cols-4 gap-4">
                 {property.image_urls.map((url: string, index: number) => (
@@ -143,7 +144,7 @@ export default function PropertyDetail() {
               <div><span className="text-gray-500 dark:text-gray-400">Area:</span> {property.area_sqft} sq.ft</div>
             </div>
             <p className="mt-6 text-gray-700 dark:text-gray-300">{property.description}</p>
-            
+
             <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 p-6 rounded-lg mt-6">
               <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">💰 True Total Cost Calculator</h3>
               <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
@@ -218,23 +219,42 @@ export default function PropertyDetail() {
             </div>
           </div>
 
-          <PropertyMap 
+          {/* ⬇️ ADDED VASTU CARD ⬇️ */}
+          {property.vastu_score && (
+            <VastuCard
+              data={{
+                score: property.vastu_score,
+                label: property.vastu_label,
+                facing: property.vastu_facing,
+                entrance: property.vastu_entrance,
+                hall: property.vastu_hall,
+                masterBedroom: property.vastu_master_bedroom,
+                kitchen: property.vastu_kitchen,
+                toilet: property.vastu_toilet,
+                positives: property.vastu_positives || [],
+                doshas: property.vastu_doshas || [],
+              }}
+            />
+          )}
+          {/* ⬆️ ADDED VASTU CARD ⬆️ */}
+
+          <PropertyMap
             lat={property.latitude || 18.5204}
             lng={property.longitude || 73.8567}
-            propertyTitle={property.title} 
+            propertyTitle={property.title}
           />
         </div>
 
         <div>
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 sticky top-24">
-            
+
             {isOwner ? (
               <div>
                 <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
                   📊 Real-Time Inquiries
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-6 text-sm">Reply to buyers within 2 hours for the best response rate.</p>
-                
+
                 {inquiries.length === 0 ? (
                   <div className="text-center py-8 bg-gray-50 dark:bg-gray-900/50 rounded border dark:border-gray-700 text-gray-500 dark:text-gray-400">
                     No inquiries yet. Your property is live!
@@ -252,8 +272,8 @@ export default function PropertyDetail() {
                           <p className="text-sm text-blue-600 dark:text-blue-400 font-semibold">✉️ {inq.buyer_email || "No email provided"}</p>
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border dark:border-gray-700 mb-3">{inq.message}</p>
-                        
-                        <a 
+
+                        <a
                           href={`https://mail.google.com/mail/?view=cm&fs=1&to=${inq.buyer_email}&su=Regarding Property: ${property.title}&body=Hi ${inq.buyer_name},%0D%0A%0D%0AThanks for your interest in ${property.title}. I would like to schedule a site visit. When are you available?%0D%0A%0D%0ARegards,%0D%0A${property.owner_name}`}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -270,11 +290,11 @@ export default function PropertyDetail() {
               <div>
                 <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Contact Owner</h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">Zero Brokerage. Direct connection.</p>
-                
+
                 <div className="mb-6 bg-gray-50 dark:bg-gray-900/50 p-3 rounded border border-gray-200 dark:border-gray-700">
                   <p className="text-sm font-bold text-gray-800 dark:text-white">Owner: {property.owner_name}</p>
                   <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    <span className="text-yellow-500 mr-1">⭐ 4.8/5 Rating</span> | 
+                    <span className="text-yellow-500 mr-1">⭐ 4.8/5 Rating</span> |
                     <span className="ml-1">⚡ Replies in 2 hrs</span>
                   </div>
                 </div>
@@ -300,10 +320,18 @@ export default function PropertyDetail() {
                 </button>
               </div>
             )}
-            
+
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PropertyDetail() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <PropertyDetailContent />
+    </Suspense>
   );
 }
